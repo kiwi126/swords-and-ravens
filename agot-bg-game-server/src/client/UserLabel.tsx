@@ -10,7 +10,7 @@ import LobbyGameState from "../common/lobby-game-state/LobbyGameState";
 import IngameGameState from "../common/ingame-game-state/IngameGameState";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCaretDown} from "@fortawesome/free-solid-svg-icons/faCaretDown";
-import { Dropdown, Overlay } from "react-bootstrap";
+import { Dropdown } from "react-bootstrap";
 import Player from "../common/ingame-game-state/Player";
 import ConditionalWrap from "./utils/ConditionalWrap";
 

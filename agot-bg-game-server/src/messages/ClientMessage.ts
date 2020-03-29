@@ -3,7 +3,7 @@ export type ClientMessage = Ping | Authenticate | PlaceOrder | Ready | Unready |
     | ChooseTopWildlingCardAction | ReplaceOrder | SkipReplaceOrder | ResolveRaid | Bid | ChooseChoice
     | DecideBiggest | ReconcileArmies | Muster | ResolveTies | SelectUnits | LaunchGame | ChooseHouse
     | SelectOrders | SelectHouseCard | SelectRegion | ChangeSettings | CreatePrivateChatRoom | ChangeGameSettings
-    | CancelGame | Vote | LaunchCancelGameVote | CancelVote | LaunchReplacePlayerVote;
+    | CancelGame | Vote | LaunchCancelGameVote | CancelVote | LaunchReplacePlayerVote | ClaimVassal;
 
 interface Ping {
     type: "ping";
@@ -20,6 +20,7 @@ interface Authenticate {
 
 interface PlaceOrder {
     type: "place-order";
+    house: string;
     orderId: number | null;
     regionId: string;
 }
@@ -206,4 +207,9 @@ interface CancelVote {
 interface LaunchReplacePlayerVote {
     type: "launch-replace-player-vote";
     player: string;
+}
+
+interface ClaimVassal {
+    type: "claim-vassal";
+    houses: string[];
 }
