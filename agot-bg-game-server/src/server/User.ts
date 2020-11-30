@@ -12,7 +12,7 @@ export default class User {
     connectedClients: WebSocket[] = [];
     @observable connected: boolean;
 
-    constructor(id: string, name: string, game: EntireGame, settings: UserSettings = {pbemMode: false}, connected = false) {
+    constructor(id: string, name: string, game: EntireGame, settings: UserSettings = {mapScrollbar: false, lastOpenedTab: null}, connected = false) {
         this.id = id;
         this.name = name;
         this.settings = settings;
@@ -36,7 +36,7 @@ export default class User {
 
         if (newConnected != this.connected) {
             this.connected = newConnected;
-    
+
             this.entireGame.broadcastToClients({
                 type: "update-connection-status",
                 user: this.id,

@@ -1,6 +1,7 @@
 import BetterMap from "../utils/BetterMap";
 import unitTypes from "../common/ingame-game-state/game-data-structure/unitTypes";
 import staticWorld from "../common/ingame-game-state/game-data-structure/static-data-structure/globalStaticWorld";
+import { CrowKillersStep } from "../common/ingame-game-state/westeros-game-state/wildlings-attack-game-state/crow-killers-wildling-victory-game-state/CrowKillersWildlingVictoryGameState";
 
 const serializedGameMigrations: {version: string; migrate: (serializeGamed: any) => any}[] = [
     {
@@ -234,6 +235,55 @@ const serializedGameMigrations: {version: string; migrate: (serializeGamed: any)
                     const playersToHouse = new BetterMap(ingame.players.map((serializedPlayer: any) => [serializedPlayer.userId, serializedPlayer.houseId]));
 
                     planning.readyHouses = planning.readyPlayers.map((playerId: string) => playersToHouse.get(playerId));
+                }
+            }
+
+            return serializedGame;
+        }
+    },
+    {
+        version: "7",
+        migrate: (serializedGame: any) => {
+            // Migration for #690
+
+            // Check if game is currently in "CrowKillersWildlingsVictoryGameState"
+            if (serializedGame.childGameState.type == "ingame") {
+                const ingame = serializedGame.childGameState;
+
+                if (ingame.childGameState && ingame.childGameState.type == "westeros") {
+                    const westeros = ingame.childGameState;
+
+                    if (westeros.childGameState && westeros.childGameState.type == "wildlings-attack") {
+                        const wildlingsAttack = westeros.childGameState;
+
+                        if (wildlingsAttack.childGameState && wildlingsAttack.childGameState == "crow-killers-wildling-victory") {
+                            const crowKillersWildlingVictory = wildlingsAttack.childGameState;
+
+                            // We assume no game is in the potential buggy state where we would have to apply KILLING_KNIGHTS
+                            crowKillersWildlingVictory.step = CrowKillersStep.DEGRADING_KNIGHTS;
+                        }
+                    }
+                }
+            }
+
+            return serializedGame;
+        }
+    },
+    {
+        version: "8",
+        migrate: (serializedGame: any) => {
+            // Migration for #590
+            if (serializedGame.childGameState.type == "ingame") {
+                const ingame = serializedGame.childGameState;
+                if (ingame.childGameState && ingame.childGameState.type == "action") {
+                    const action = ingame.childGameState;
+                    if (action.childGameState && action.childGameState.type == "use-raven") {
+                        const useRaven = action.childGameState;
+                        if (useRaven.childGameState && useRaven.childGameState.type == "choose-raven-action") {
+                            // If game is currently in "choose-raven-action" replace it with new first child state "replace-order"
+                            useRaven.childGameState.type = "replace-order"
+                        }
+                    }
                 }
             }
 

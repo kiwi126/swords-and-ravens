@@ -3,13 +3,13 @@ export default interface GameLog {
     data: GameLogData;
 }
 
-export type GameLogData = TurnBegin | SupportDeclared | Attack | MarchResolved
+export type GameLogData = TurnBegin | SupportDeclared | SupportRefused | Attack | MarchResolved
     | WesterosCardExecuted | WesterosCardDrawn | CombatResult | WildlingCardRevealed | WildlingBidding
     | HighestBidderChosen | LowestBidderChosen | PlayerMustered | WinnerDeclared
-    | RavenHolderWildlingCardPutBottom | RavenHolderWildlingCardPutTop | RavenHolderReplaceOrder | RaidDone | DarkWingsDarkWordsChoice
+    | RavenHolderWildlingCardPutBottom | RavenHolderWildlingCardPutTop | RavenHolderReplaceOrder | RavenNotUsed | RaidDone | DarkWingsDarkWordsChoice
     | PutToTheSwordChoice | AThroneOfBladesChoice | WinterIsComing | WesterosPhaseBegan
     | CombatHouseCardChosen | CombatValyrianSwordUsed | ClashOfKingsBiddingDone | ClashOfKingsFinalOrdering
-    | ActionPhaseBegan | PlanningPhaseBegan | WildlingStrengthTriggerWildlingsAttack | MarchOrderRemoved
+    | ActionPhaseBegan | ActionPhaseResolveRaidBegan | ActionPhaseResolveMarchBegan | ActionPhaseResolveConsolidatePowerBegan | PlanningPhaseBegan | WildlingStrengthTriggerWildlingsAttack | MarchOrderRemoved
     | ConsolidatePowerOrderResolved | ArmiesReconciled | EnemyPortTaken | ShipsDestroyedByEmptyCastle
     | HouseCardAbilityNotUsed | PatchfaceUsed | DoranUsed
     | TyrionLannisterHouseCardReplaced | TyrionLannisterChoiceMade
@@ -24,7 +24,7 @@ export type GameLogData = TurnBegin | SupportDeclared | Attack | MarchResolved
     | MassingOnTheMilkwaterHouseCardsRemoved
     | AKingBeyondTheWallHighestTopTrack | AKingBeyondTheWallHouseReduceTrack | AKingBeyondTheWallLowestReduceTracks
     | MammothRidersDestroyUnits | MammothRidersReturnCard | TheHordeDescendsHighestMuster | TheHordeDescendsUnitsKilled
-    | CrowKillersFootmanUpgraded | CrowKillersKnightsReplaced
+    | CrowKillersFootmanUpgraded | CrowKillersKnightsReplaced | CrowKillersKnightsKilled
     | SkinchangerScoutNightsWatchVictory | SkinchangerScoutWildlingVictory
     | RattleshirtsRaidersNightsWatchVictory | RattleshirtsRaidersWildlingVictory
     | GameOfThronesPowerTokensGained | ImmediatelyBattleCasualtiesSuffered | BattleCasualtiesSuffered
@@ -39,6 +39,11 @@ interface SupportDeclared {
     type: "support-declared";
     supporter: string;
     supported: string | null;
+}
+
+interface SupportRefused {
+    type: "support-refused";
+    house: string;
 }
 
 interface HouseCardChosen {
@@ -144,6 +149,11 @@ interface RavenHolderReplaceOrder {
     newOrder: number;
 }
 
+interface RavenNotUsed {
+    type: "raven-not-used";
+    ravenHolder: string;
+}
+
 interface RaidDone {
     type: "raid-done";
     raider: string;
@@ -207,6 +217,18 @@ interface ClashOfKingsFinalOrdering {
 
 interface ActionPhaseBegan {
     type: "action-phase-began";
+}
+
+interface ActionPhaseResolveRaidBegan {
+    type: "action-phase-resolve-raid-began";
+}
+
+interface ActionPhaseResolveMarchBegan {
+    type: "action-phase-resolve-march-began";
+}
+
+interface ActionPhaseResolveConsolidatePowerBegan {
+    type: "action-phase-resolve-consolidate-power-began";
 }
 
 interface PlanningPhaseBegan {
@@ -486,6 +508,12 @@ interface TheHordeDescendsUnitsKilled {
 
 interface CrowKillersKnightsReplaced {
     type: "crow-killers-knights-replaced";
+    house: string;
+    units: [string, string[]][];
+}
+
+interface CrowKillersKnightsKilled {
+    type: "crow-killers-knights-killed";
     house: string;
     units: [string, string[]][];
 }

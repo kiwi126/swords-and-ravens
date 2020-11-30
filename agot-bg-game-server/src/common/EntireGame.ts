@@ -31,6 +31,10 @@ export default class EntireGame extends GameState<null, LobbyGameState | IngameG
     // Client-side callback fired whenever the current GameState changes.
     onClientGameStateChange: (() => void) | null;
 
+    get owner(): User | null {
+        return this.users.tryGet(this.ownerUserId, null);
+    }
+
     constructor(id: string, ownerId: string, name: string) {
         super(null);
         this.id = id;
@@ -214,18 +218,36 @@ export default class EntireGame extends GameState<null, LobbyGameState | IngameG
         const players: {userId: string; data: object}[] = [];
         if (this.childGameState instanceof LobbyGameState) {
             this.childGameState.players.forEach((user, house) => {
+                // If the game is in "randomize house" mode, don't specify any houses in the PlayerInGame data
+                const playerData: {[key: string]: any} = {};
+
+                if (!this.gameSettings.randomHouses) {
+                    playerData["house"] = house.id;
+                }
+
                 players.push({
                     userId: user.id,
-                    data: {"house": house.id}
+                    data: playerData
                 });
             });
         } else if (this.childGameState instanceof IngameGameState) {
             const waitedForUsers = this.childGameState.getWaitedUsers();
 
             this.childGameState.players.forEach((player, user) => {
+                // "Important chat rooms" are chat rooms where unseen messages will display
+                // a badge next to the game in the website.
+                // In this case, it's all private rooms with this player in it. The next line
+                // fetches the list of private chat rooms, the website will take care of
+                // showing the badge or not, based on whether there are unseen messages.
+                const importantChatRooms = this.getPrivateChatRoomsOf(user);
+
                 players.push({
                     userId: user.id,
-                    data: {"house": player.house.id, "waited_for": waitedForUsers.includes(user)}
+                    data: {
+                        "house": player.house.id,
+                        "waited_for": waitedForUsers.includes(user),
+                        "important_chat_rooms": importantChatRooms.map(cr => cr.roomId)
+                    }
                 });
             });
         }
@@ -283,7 +305,7 @@ export default class EntireGame extends GameState<null, LobbyGameState | IngameG
 
     serializeToClient(user: User | null): SerializedEntireGame {
         const admin = user == null;
-        
+
         return {
             id: this.id,
             name: this.name,

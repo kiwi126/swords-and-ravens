@@ -19,6 +19,7 @@ import _ from "lodash";
 import joinReactNodes from "./utils/joinReactNodes";
 import orders from "../common/ingame-game-state/game-data-structure/orders";
 import CombatInfoComponent from "./CombatInfoComponent";
+import { OverlayTrigger, Tooltip } from "react-bootstrap";
 
 interface GameLogListComponentProps {
     ingameGameState: IngameGameState;
@@ -38,10 +39,16 @@ export default class GameLogListComponent extends Component<GameLogListComponent
         return this.props.ingameGameState.gameLogManager.logs.map((l, i) => (
             <Row key={i}>
                 <Col xs="auto" className="text-muted">
-                    <small>
-                        {l.time.getHours().toString().padStart(2, "0")}
-                        :{l.time.getMinutes().toString().padStart(2, "0")}
-                    </small>
+                    <OverlayTrigger
+                        placement="auto"
+                        overlay={<Tooltip id={"log-date-" + l.time.getUTCMilliseconds()}>{l.time.toLocaleString()}</Tooltip>}
+                        popperConfig={{ modifiers: { preventOverflow: { boundariesElement: "viewport" } } }}
+                    >
+                        <small>
+                            {l.time.getHours().toString().padStart(2, "0")}
+                            :{l.time.getMinutes().toString().padStart(2, "0")}
+                        </small>
+                    </OverlayTrigger>
                 </Col>
                 <Col>
                     <div className="game-log-content">
@@ -71,6 +78,11 @@ export default class GameLogListComponent extends Component<GameLogListComponent
                 } else {
                     return <><b>{supporter.name}</b> supported no-one.</>;
                 }
+
+            case "support-refused": {
+                const house = this.game.houses.get(data.house);
+                return <>House <b>{house.name}</b> chose to refuse all the support they received.</>;
+            }
 
             case "attack":
                 const attacker = this.game.houses.get(data.attacker);
@@ -257,8 +269,8 @@ export default class GameLogListComponent extends Component<GameLogListComponent
 
                 return (
                     <p>
-                        <strong>{house.name}</strong>, holder of the Messenger Raven token, chose to see the card at the top
-                        of the Wildling deck and to move it at the bottom of the deck.
+                        <strong>{house.name}</strong>, holder of the Messenger Raven token, chose to look at the top
+                        card of the Wildling deck and to move it at the bottom of the deck.
                     </p>
                 );
 
@@ -267,8 +279,8 @@ export default class GameLogListComponent extends Component<GameLogListComponent
 
                 return (
                     <p>
-                        <strong>{house.name}</strong>, holder of the Messenger Raven token, chose to see the card at the top
-                        of the Wildling deck and to leave it at the top of the deck.
+                        <strong>{house.name}</strong>, holder of the Messenger Raven token, chose to look at the top
+                        card of the Wildling deck and to leave it at the top of the deck.
                     </p>
                 );
 
@@ -285,6 +297,12 @@ export default class GameLogListComponent extends Component<GameLogListComponent
                         </strong> in <strong>{orderRegion.name}</strong>.
                     </p>
                 );
+
+            case "raven-not-used":{
+                const house = this.game.houses.get(data.ravenHolder);
+
+                return <p><strong>{house.name}</strong> did not use the Messenger Raven token.</p>;
+            }
 
             case "raid-done":
                 const raider = this.game.houses.get(data.raider);
@@ -376,21 +394,42 @@ export default class GameLogListComponent extends Component<GameLogListComponent
             case "westeros-phase-began":
                 return <Row className="justify-content-center">
                     <Col xs="auto">
-                        <h6><strong>Westeros Phase</strong></h6>
+                        <h5><strong>Westeros Phase</strong></h5>
                     </Col>
                 </Row>;
 
             case "planning-phase-began":
                 return <Row className="justify-content-center">
                     <Col xs="auto">
-                        <h6><strong>Planning Phase</strong></h6>
+                        <h5><strong>Planning Phase</strong></h5>
                     </Col>
                 </Row>;
 
             case "action-phase-began":
                 return <Row className="justify-content-center">
                     <Col xs="auto">
-                        <h6><strong>Action Phase</strong></h6>
+                        <h5><strong>Action Phase</strong></h5>
+                    </Col>
+                </Row>;
+
+            case "action-phase-resolve-raid-began":
+                return <Row className="justify-content-center">
+                    <Col xs="auto">
+                        <h6><strong>Resolve Raid Orders</strong></h6>
+                    </Col>
+                </Row>;
+
+            case "action-phase-resolve-march-began":
+                return <Row className="justify-content-center">
+                    <Col xs="auto">
+                        <h6><strong>Resolve March Orders</strong></h6>
+                    </Col>
+                </Row>;
+
+            case "action-phase-resolve-consolidate-power-began":
+                return <Row className="justify-content-center">
+                    <Col xs="auto">
+                        <h6><strong>Resolve Consolidate Power Orders</strong></h6>
                     </Col>
                 </Row>;
 
@@ -844,9 +883,16 @@ export default class GameLogListComponent extends Component<GameLogListComponent
 
                 return <>
                     {units.length > 0
-                    ? (<><strong>Crow Killers</strong>: <strong>{house.name}</strong> replaced {joinReactNodes(units.map(([region, unitTypes]) => <><strong>{unitTypes.length}</strong> Knights in <strong>{region.name}</strong></>), ", ")} with Footmen.</>)
+                    ? (<><strong>Crow Killers</strong>: <strong>{house.name}</strong> replaced {joinReactNodes(units.map(([region, unitTypes]) => <><strong>{unitTypes.length}</strong> Knight{unitTypes.length > 1 && "s"} in <strong>{region.name}</strong></>), ", ")} with Footmen.</>)
                     : (<><strong>Crow Killers</strong>: <strong>{house.name}</strong> had no Knights to replace with Footmen.</>)}
                 </>;
+
+            case "crow-killers-knights-killed": {
+                const house = this.game.houses.get(data.house);
+                const units: [Region, UnitType[]][] = data.units.map(([rid, utids]) => [this.world.regions.get(rid), utids.map(utid => unitTypes.get(utid))]);
+
+                return <><b>Crow Killers</b>: <b>{house.name}</b> had to destroy {joinReactNodes(units.map(([region, unitTypes]) => <><b>{unitTypes.length}</b> Knight{unitTypes.length > 1 && "s"} in <b>{region.name}</b></>), ", ")}.</>;
+            }
 
             case "crow-killers-footman-upgraded":
                 house = this.game.houses.get(data.house);
@@ -854,7 +900,7 @@ export default class GameLogListComponent extends Component<GameLogListComponent
 
                 return <>
                     {units.length > 0
-                    ? (<><strong>Crow Killers</strong>: <strong>{house.name}</strong> replaced {joinReactNodes(units.map(([region, unitTypes]) => <><strong>{unitTypes.length}</strong> Footmen in <strong>{region.name}</strong></>), ", ")} with Knights.</>)
+                    ? (<><strong>Crow Killers</strong>: <strong>{house.name}</strong> replaced {joinReactNodes(units.map(([region, unitTypes]) => <><strong>{unitTypes.length}</strong> Footm{unitTypes.length == 1 ? "a" : "e"}n in <strong>{region.name}</strong></>), ", ")} with Knights.</>)
                     : (<><strong>Crow Killers</strong>: <strong>{house.name}</strong> was not able to replace any Footman with Knights.</>)}
                 </>;
 

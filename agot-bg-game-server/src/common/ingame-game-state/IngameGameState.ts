@@ -26,6 +26,8 @@ import VoteType, { CancelGame, ReplacePlayer } from "./vote-system/VoteType";
 import { v4 } from "uuid";
 import CancelledGameState, { SerializedCancelledGameState } from "../cancelled-game-state/CancelledGameState";
 
+export const NOTE_MAX_LENGTH = 5000;
+
 export default class IngameGameState extends GameState<
     EntireGame,
     WesterosGameState | PlanningGameState | ActionGameState | CancelledGameState | GameEndedGameState
@@ -159,9 +161,11 @@ export default class IngameGameState extends GameState<
                 player.user,
                 new CancelGame()
             );
+        } else if (message.type == "update-note") {
+            player.note = message.note.substring(0, NOTE_MAX_LENGTH);
         } else {
             this.childGameState.onPlayerMessage(player, message);
-        } 
+        }
     }
 
     createVote(initiator: User, type: VoteType): Vote {
@@ -329,11 +333,9 @@ export default class IngameGameState extends GameState<
             this.game.clientNextWildlingCardId = message.cardId;
         } else if (message.type == "vote-started") {
             const vote = Vote.deserializeFromServer(this, message.vote);
-            
             this.votes.set(vote.id, vote);
         } else if (message.type == "vote-cancelled") {
             const vote = this.votes.get(message.vote);
-            
             vote.cancelled = true;
         } else if (message.type == "vote-done") {
             const vote = this.votes.get(message.vote);
@@ -353,13 +355,19 @@ export default class IngameGameState extends GameState<
         }
     }
 
-    launchCancelGameVote(): void {
-        this.entireGame.sendMessageToServer({
-            type: "launch-cancel-game-vote"
-        });
+    getSpectators(): User[] {
+        return this.entireGame.users.values.filter(u => !this.players.keys.includes(u));
     }
 
-    canLaunchCancelGameVote(): {result: boolean; reason: string} {  
+    launchCancelGameVote(): void {
+        if (window.confirm('Do you want to launch a vote to cancel the game?')) {
+            this.entireGame.sendMessageToServer({
+                type: "launch-cancel-game-vote"
+            });
+        }
+    }
+
+    canLaunchCancelGameVote(): {result: boolean; reason: string} {
         const existingVotes = this.votes.values.filter(v => v.state == VoteState.ONGOING && v.type instanceof CancelGame);
 
         if (existingVotes.length > 0) {
@@ -405,6 +413,13 @@ export default class IngameGameState extends GameState<
         });
     }
 
+    updateNote(note: string): void {
+        this.entireGame.sendMessageToServer({
+            type: "update-note",
+            note: note
+        });
+    }
+
     serializeToClient(admin: boolean, user: User | null): SerializedIngameGameState {
         // If user == null, then the game state needs to be serialized
         // in an "admin" version (i.e. containing all data).
@@ -418,7 +433,7 @@ export default class IngameGameState extends GameState<
 
         return {
             type: "ingame",
-            players: this.players.values.map(p => p.serializeToClient()),
+            players: this.players.values.map(p => p.serializeToClient(admin, player)),
             game: this.game.serializeToClient(admin, player != null && player.house.knowsNextWildlingCard),
             gameLogManager: this.gameLogManager.serializeToClient(),
             votes: this.votes.values.map(v => v.serializeToClient()),

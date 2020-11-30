@@ -1,9 +1,9 @@
 export type ClientMessage = Ping | Authenticate | PlaceOrder | Ready | Unready | ResolveMarchOrder | DeclareSupport
-    | UseValyrianSteelBlade | ChooseHouseCard | ChooseCasualties | ChooseRavenAction | KickPlayer
+    | RefuseSupport | UseValyrianSteelBlade | ChooseHouseCard | ChooseCasualties | ChooseSeeTopWildlingCard | KickPlayer
     | ChooseTopWildlingCardAction | ReplaceOrder | SkipReplaceOrder | ResolveRaid | Bid | ChooseChoice
     | DecideBiggest | ReconcileArmies | Muster | ResolveTies | SelectUnits | LaunchGame | ChooseHouse
     | SelectOrders | SelectHouseCard | SelectRegion | ChangeSettings | CreatePrivateChatRoom | ChangeGameSettings
-    | CancelGame | Vote | LaunchCancelGameVote | CancelVote | LaunchReplacePlayerVote;
+    | CancelGame | Vote | LaunchCancelGameVote | CancelVote | LaunchReplacePlayerVote | UpdateNote;
 
 interface Ping {
     type: "ping";
@@ -57,6 +57,10 @@ interface DeclareSupport {
     supportedHouseId: string | null;
 }
 
+interface RefuseSupport {
+    type: "refuse-support";
+}
+
 interface UseValyrianSteelBlade {
     type: "use-valyrian-steel-blade";
     use: boolean;
@@ -72,15 +76,8 @@ interface ChooseCasualties {
     chosenCasualties: number[];
 }
 
-interface ChooseRavenAction {
-    type: "choose-raven-action";
-    action: RavenAction;
-}
-
-export enum RavenAction {
-    REPLACE_ORDER,
-    SEE_TOP_WILDLING_CARD,
-    NONE
+interface ChooseSeeTopWildlingCard {
+    type: "choose-see-top-wildling-card";
 }
 
 interface ChooseTopWildlingCardAction {
@@ -171,6 +168,8 @@ interface ChangeSettings {
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface UserSettings {
+    mapScrollbar: boolean;
+    lastOpenedTab: string | null;
 }
 
 interface ChangeGameSettings {
@@ -206,4 +205,9 @@ interface CancelVote {
 interface LaunchReplacePlayerVote {
     type: "launch-replace-player-vote";
     player: string;
+}
+
+interface UpdateNote {
+    type: "update-note";
+    note: string;
 }

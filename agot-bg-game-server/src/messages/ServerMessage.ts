@@ -7,17 +7,19 @@ import {GameLogData} from "../common/ingame-game-state/game-data-structure/GameL
 import {UserSettings} from "./ClientMessage";
 import { SerializedWesterosCard } from "../common/ingame-game-state/game-data-structure/westeros-card/WesterosCard";
 import { SerializedVote } from "../common/ingame-game-state/vote-system/Vote";
+import { CrowKillersStep } from "../common/ingame-game-state/westeros-game-state/wildlings-attack-game-state/crow-killers-wildling-victory-game-state/CrowKillersWildlingVictoryGameState";
 
 export type ServerMessage = NewUser | HouseChosen | AuthenticationResponse | OrderPlaced | PlayerReady | PlayerUnready
-    | HouseCardChosen | CombatImmediatelyKilledUnits | SupportDeclared | NewTurn | RemovePlacedOrder
+    | HouseCardChosen | CombatImmediatelyKilledUnits | SupportDeclared | SupportRefused | NewTurn | RemovePlacedOrder
     | MoveUnits | CombatChangeArmy
     | UnitsWounded | ChangeCombatHouseCard | BeginSeeTopWildlingCard
     | RavenOrderReplaced | RevealTopWildlingCard | HideTopWildlingCard | ProceedWesterosCard | ChangeGarrison
-    | BidDone | GameStateChange | SupplyAdjusted
+    | BiddingBegin | BidDone | BiddingNextTrack | GameStateChange | SupplyAdjusted
     | ChangeControlPowerToken | ChangePowerToken | ChangeWildlingStrength | AddGameLog | RevealWildlingCard
     | RemoveUnits | AddUnits | ChangeTracker | ActionPhaseChangeOrder | ChangeStateHouseCard
-    | SettingsChanged | ChangeValyrianSteelBladeUse | BiddingNextTrack | NewPrivateChatRoom | GameSettingsChanged
-    | UpdateWesterosDecks | UpdateConnectionStatus | VoteStarted | VoteCancelled | VoteDone | PlayerReplaced;
+    | SettingsChanged | ChangeValyrianSteelBladeUse |  NewPrivateChatRoom | GameSettingsChanged
+    | UpdateWesterosDecks | UpdateConnectionStatus | VoteStarted | VoteCancelled | VoteDone | PlayerReplaced
+    | CrowKillersStepChanged;
 
 interface AuthenticationResponse {
     type: "authenticate-response";
@@ -66,6 +68,11 @@ interface SupportDeclared {
     type: "support-declared";
     houseId: string;
     supportedHouseId: string | null;
+}
+
+interface SupportRefused {
+    type: "support-refused";
+    houseId: string;
 }
 
 interface HouseCardChosen {
@@ -138,9 +145,14 @@ interface ProceedWesterosCard {
     currentCardI: number;
 }
 
+interface BiddingBegin {
+    type: "bidding-begin";
+}
+
 interface BidDone {
     type: "bid-done";
     houseId: string;
+    value: number;
 }
 
 interface GameStateChange {
@@ -275,4 +287,9 @@ interface PlayerReplaced {
     type: "player-replaced";
     oldUser: string;
     newUser: string;
+}
+
+interface CrowKillersStepChanged {
+    type: "crow-killers-step-changed";
+    newStep: CrowKillersStep;
 }

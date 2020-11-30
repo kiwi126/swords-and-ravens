@@ -17,22 +17,23 @@
     <tbody>
         {% for game in games %}
             <tr
-                {% if game.state == "ONGOING" %}
                 data-toggle="popover"
                 data-html="true"
                 data-title="<div class='popover-title'>{{ game.name }}</div>"
                 data-boundary="window"
                 data-content="
-                    <p>
-                        Turn: <b>{{ game.view_of_game.turn }}</b>
-                    </p>
-                    <div class='text-small text-muted'>
-                        Last active {{ game.updated_at|naturaltime }}
-                    </div>
+                    {% if game.state == "ONGOING" %}
+                        <p>
+                            Turn: <b>{{ game.view_of_game.turn }}</b>
+                        </p>
+                        <div class='text-small text-muted'>
+                            Last active {{ game.updated_at|naturaltime }}
+                        </div>
+                    {% endif %}
+                    <div><b>Owner: </b>{{ game.owner.username }}</div>
                 "
                 data-placement="right"
                 data-trigger="hover"
-                {% endif %}
             >
                 <td class="align-middle text-center">
                     {% if game.state == "IN_LOBBY" %}
@@ -62,11 +63,19 @@
                     {% if game.player_in_game %}
                         {% if game.player_in_game.data.waited_for %}
                             <span class="badge badge-danger">
-                                {% house_icon game.player_in_game.data.house %} YOUR TURN
+                                {% if game.player_in_game.data.house %}{% house_icon game.player_in_game.data.house %}{% endif %} YOUR TURN
                             </span>
                         {% else %}
                             <span class="badge badge-info">
-                                {% house_icon game.player_in_game.data.house %} Playing
+                                {% if game.player_in_game.data.house %}{% house_icon game.player_in_game.data.house %}{% endif %} Playing
+                            </span>
+                        {% endif %}
+                        {% if game.unseen_private_messages %}
+                            <span class="badge badge-danger"
+                              data-toggle="tooltip"
+                              title="New private messages"
+                            >
+                                <i class="fas fa-envelope"></i>
                             </span>
                         {% endif %}
                     {% endif %}
