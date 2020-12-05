@@ -27,7 +27,7 @@ Requires `NodeJS` and `yarn`. Install the dependencies and initialize the enviro
 cd agot-bg-game-server/
 yarn install
 yarn run generate-json-schemas
-cp .env.dev.local .env
+cp .env.dev.local .env (for Windows: copy .env.dev.local .env)
 ```
 
 In 2 different terminals, execute:
@@ -58,7 +58,7 @@ pip install -r requirements.txt
 python3 manage.py migrate
 
 # This command will ask for a password. Use "rootroot"
-python3 manage.py createsuperuser --username Longwelwind
+python3 manage.py createsuperuser --username srr013
 ```
 
 Once done, you can run the server by executing:
