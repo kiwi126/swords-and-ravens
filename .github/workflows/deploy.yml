@@ -10,7 +10,7 @@ env:
   GITHUB_PACKAGES_WEBSITE_DOCKER_IMAGE: docker.pkg.github.com/srr013/swords-and-ravens/website:${{ github.sha }}
   DOKKU_GAME_SERVER_DOCKER_IMAGE: dokku/play:${{ github.sha }}
   DOKKU_WEBSITE_DOCKER_IMAGE: dokku/srr-swords-and-ravens:${{ github.sha }}
-  DOKKU_HOST: root@64.227.1.176
+  DOKKU_HOST: root@134.209.112.152
 
 jobs:
   game-server-docker-build:
