@@ -42,7 +42,6 @@ jobs:
     env:
       SSH_KEY: ${{ secrets.CI_DEPLOY_SSH_KEY_NOPW }}
     steps:
-    - actions/checkout@v1
     - uses: webfactory/ssh-agent@v0.4.1
       with:
         ssh-private-key: {{ secrets.CI_DEPLOY_SSH_KEY_NOPW }}
