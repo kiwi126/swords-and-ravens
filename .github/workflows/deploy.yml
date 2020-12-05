@@ -10,7 +10,7 @@ env:
   GITHUB_PACKAGES_WEBSITE_DOCKER_IMAGE: docker.pkg.github.com/srr013/swords-and-ravens/website:${{ github.sha }}
   DOKKU_GAME_SERVER_DOCKER_IMAGE: dokku/play:${{ github.sha }}
   DOKKU_WEBSITE_DOCKER_IMAGE: dokku/srr-swords-and-ravens:${{ github.sha }}
-  DOKKU_HOST: root@134.209.112.152
+  DOKKU_HOST: root@134.209.112.56
 
 jobs:
   game-server-docker-build:
@@ -42,9 +42,6 @@ jobs:
     env:
       SSH_KEY: ${{ secrets.CI_DEPLOY_SSH_KEY_NOPW }}
     steps:
-    - uses: webfactory/ssh-agent@v0.4.1
-      with:
-        ssh-private-key: {{ secrets.CI_DEPLOY_SSH_KEY_NOPW }}
     - name: Login to GitHub Packages
       run: docker login docker.pkg.github.com -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
     - name: Setup SSH Key
