@@ -41,12 +41,15 @@ jobs:
     needs: [game-server-docker-build, website-docker-build]
     env:
       SSH_KEY: ${{ secrets.CI_DEPLOY_SSH_KEY_NOPW }}
-      SSH_AUTH_SOCK: /tmp/ssh_agent.sock
     steps:
+    - actions/checkout@v1
+    - uses: webfactory/ssh-agent@v0.4.1
+      with:
+        ssh-private-key: {{ secrets.CI_DEPLOY_SSH_KEY_NOPW }}
     - name: Login to GitHub Packages
       run: docker login docker.pkg.github.com -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
     - name: Setup SSH Key
-      run: mkdir -p ~/.ssh && echo "$SSH_KEY" > ~/.ssh/id_rsa && chmod 400 ~/.ssh/id_rsa | ssh-agent -a $SSH_AUTH_SOCK > /dev/null ssh-add - <<< "$SSH_KEY" 
+      run: mkdir -p ~/.ssh && echo "$SSH_KEY" > ~/.ssh/id_rsa && chmod 400 ~/.ssh/id_rsa
     - name: Pulling Game Server Docker Image
       run: docker pull $GITHUB_PACKAGES_GAME_SERVER_DOCKER_IMAGE
     - name: Pulling Website Docker Image
