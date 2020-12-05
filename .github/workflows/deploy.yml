@@ -55,9 +55,9 @@ jobs:
     - name: Tagging Website Docker Image
       run: docker tag $GITHUB_PACKAGES_WEBSITE_DOCKER_IMAGE $DOKKU_WEBSITE_DOCKER_IMAGE
     - name: Upload Game Server Docker Image to Dokku
-      run: docker save $DOKKU_GAME_SERVER_DOCKER_IMAGE | bzip2 | ssh -o StrictHostKeyChecking=no $DOKKU_HOST "bunzip2 | docker load"
+      run: docker save $DOKKU_GAME_SERVER_DOCKER_IMAGE | bzip2 | ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $DOKKU_HOST "bunzip2 | docker load"
     - name: Upload Website Docker Image to Dokku
-      run: docker save $DOKKU_WEBSITE_DOCKER_IMAGE | bzip2 | ssh -o StrictHostKeyChecking=no $DOKKU_HOST "bunzip2 | docker load"
+      run: docker save $DOKKU_WEBSITE_DOCKER_IMAGE | bzip2 | ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $DOKKU_HOST "bunzip2 | docker load"
     - name: Deploy Game Server
       run: ssh -o StrictHostKeyChecking=no $DOKKU_HOST "dokku tags:deploy play ${{ github.sha }}"
     - name: Deploy Website
