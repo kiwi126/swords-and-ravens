@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-18.04
     needs: [game-server-docker-build, website-docker-build]
     env:
-      SSH_KEY: ${{ secrets.CI_DEPLOY_SSH_KEY }}
+      SSH_KEY: ${{ secrets.CI_DEPLOY_SSH_KEY_NOPW }}
     steps:
     - name: Login to GitHub Packages
       run: docker login docker.pkg.github.com -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
