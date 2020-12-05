@@ -45,7 +45,7 @@ jobs:
     - name: Login to GitHub Packages
       run: docker login docker.pkg.github.com -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
     - name: Setup SSH Key
-      run: mkdir -p ~/.ssh && echo "$SSH_KEY" > ~/.ssh/id_rsa && chmod 400 ~/.ssh/id_rsa
+      run: mkdir -p ~/.ssh && echo "$SSH_KEY" > ~/.ssh/id_rsa_deploy && chmod 400 ~/.ssh/id_rsa_deploy
     - name: Pulling Game Server Docker Image
       run: docker pull $GITHUB_PACKAGES_GAME_SERVER_DOCKER_IMAGE
     - name: Pulling Website Docker Image
