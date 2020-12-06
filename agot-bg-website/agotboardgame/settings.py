@@ -203,7 +203,7 @@ EMAIL_HOST_USER = env('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = True
 EMAIL_TIMEOUT = 2
-DEFAULT_FROM_MAIL = 'Swords and Ravens <admin@swordsandravens.net>'
+DEFAULT_FROM_MAIL = 'SRR Swords and Ravens <srr0132@gmail.com>'
 
 # Logging
 

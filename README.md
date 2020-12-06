@@ -53,7 +53,7 @@ Install the dependencies of the component, initialize the database and create a 
 cd agot-bg-website/
 cp .env.dev .env
 python3 -m venv venv
-source venv/bin/activate
+source venv/bin/activate (windows: venv\SCripts\activate.bat)
 pip install -r requirements.txt
 python3 manage.py migrate
 
